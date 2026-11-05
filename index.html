@@ -1,0 +1,52 @@
+﻿<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Luas Live · Tram chatbot</title>
+<style>
+*{box-sizing:border-box}html{color-scheme:dark}body{margin:0;min-height:100vh;background:#050c1a;color:#f5f0e5;font:16px Arial,sans-serif}body:before{content:'';position:fixed;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(3,8,24,.95),rgba(3,13,29,.76) 55%,rgba(5,15,30,.4)),linear-gradient(0deg,#030717 0%,transparent 65%),url('tram-background.png') center/cover no-repeat}main{max-width:1400px;margin:auto;padding:36px 6vw}.topbar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff21;padding-bottom:22px;margin-bottom:64px}.brand{font:italic 27px Georgia,serif;color:#e2c364}.topbar span:last-child{font:11px monospace;letter-spacing:3px;color:#d8d7d0}.eyebrow{font:700 11px monospace;letter-spacing:4px;color:#e2c364;margin:0 0 20px}.layout{display:grid;grid-template-columns:1.15fr 1fr;gap:6vw;align-items:start}.intro{padding:20px 0}h1{font:normal clamp(44px,5.4vw,78px)/1.08 Georgia,serif;letter-spacing:-2px;margin:0 0 24px}h1 em{color:#e2c364;font-weight:400}.lead{color:#bfc5ce;font-size:18px;line-height:1.8;max-width:460px}.steps{list-style:none;margin:35px 0 0;padding:0}.steps li{display:flex;gap:20px;margin:22px 0;color:#c4c8d0;line-height:1.6}.steps b{font:32px Georgia,serif;color:#e2c364;font-weight:400}.steps strong{color:#f5f0e5;font-weight:500}.panel{background:#081324db;border:1px solid #ffffff24;backdrop-filter:blur(14px);padding:24px;border-radius:4px;box-shadow:0 25px 80px #0004}.panel-title{display:flex;align-items:center;justify-content:space-between;padding-bottom:20px;border-bottom:1px solid #ffffff19;font:22px Georgia,serif}.panel-title span{font:10px monospace;letter-spacing:2px;color:#e2c364}#chat{height:285px;overflow:auto;display:flex;flex-direction:column;gap:14px;padding:22px 0;scrollbar-width:thin}.message{white-space:pre-wrap;line-height:1.65;padding:13px 16px;max-width:95%;align-self:flex-start;font-size:14px;background:#ffffff09;border-left:2px solid #b8a15d}.user{align-self:flex-end;background:#e2c3641c;border-left:0;border-right:2px solid #e2c364;color:#f3df9c}label{display:block;font:10px monospace;letter-spacing:1.8px;text-transform:uppercase;color:#bfc5ce;margin:15px 0 10px}input,select,button{font:14px Arial,sans-serif;border-radius:2px;padding:13px;border:1px solid #ffffff26}select{width:100%;background:#101d2d;color:#f5f0e5}form{display:flex;gap:8px;margin-top:12px}input{min-width:0;flex:1;background:#ffffff05;color:#fff}input::placeholder{color:#a2aaba}button{background:#e2c364;color:#161b25;font-weight:700;cursor:pointer;border:1px solid #e2c364}button:disabled{opacity:.5;cursor:wait}:focus-visible{outline:2px solid #e2c364;outline-offset:3px}#status{font:11px/1.6 monospace;color:#b5bbc6;margin:14px 0 0}footer{border-top:1px solid #ffffff1c;margin-top:60px;padding:20px 0;color:#9aa4b4;font-size:11px;line-height:1.8}a{color:#dfc77d}.connection-note{font-size:12px;color:#aeb6c3;line-height:1.7;margin:20px 0 0}.connection-note code{color:#e2c364} @media(max-width:850px){main{padding:25px 6vw}.topbar{margin-bottom:35px}.layout{grid-template-columns:1fr;gap:25px}.intro{padding:0}h1{max-width:600px}.steps{display:none}.lead{max-width:600px}.panel{max-width:650px;width:100%}footer{margin-top:35px}}@media(max-width:450px){.topbar span:last-child{font-size:9px;letter-spacing:1px}.panel{padding:16px}h1{font-size:48px}form{flex-wrap:wrap}form button{width:100%}}
+</style>
+<main>
+<nav class="topbar" aria-label="Brand"><span class="brand">luas / live</span><span>DUBLIN, IN REAL TIME</span></nav>
+<div class="layout"><section class="intro"><p class="eyebrow">YOUR CITY. YOUR NEXT CONNECTION.</p><h1>The next Luas.<br>A little more <em>certainty.</em></h1><p class="lead">A rainy evening. A familiar stop. Find out when your next tram arrives, with a simple conversation.</p><ol class="steps"><li><b>1</b><span><strong>Choose your stop.</strong><br>Red line or Green line, start where you are.</span></li><li><b>2</b><span><strong>Ask about your next tram.</strong><br>Include inbound or outbound to narrow it down.</span></li><li><b>3</b><span><strong>Get a fresh forecast.</strong><br>Arrival predictions come from the Luas feed.</span></li></ol></section>
+<section class="panel" aria-label="Luas chatbot"><div class="panel-title">Ask Luas <span>LIVE ARRIVALS</span></div>
+<div id="chat" role="log" aria-live="polite"></div>
+<label for="stop">Choose a stop, or mention one in your message</label>
+<select id="stop" disabled><option>Loading Luas stops…</option></select>
+<form id="form"><input id="question" aria-label="Message" placeholder="When is the next tram at Ranelagh?" maxlength="300" required><button id="send" disabled>Ask Luas →</button></form>
+<p id="status" role="status">Connecting to the Luas feed…</p>
+<p class="connection-note">Arrival times are estimates. Ask again for the latest forecast.</p></section></div>
+<footer>Independent course project. Data: <a href="https://data.gov.ie/dataset/luas-forecasting-api">Transport Infrastructure Ireland / Luas Forecasting API</a>, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>. Arrival times are predictions. This version uses stop matching, without a language model.</footer>
+</main>
+<script>
+// Set API_URL to a hosted proxy if direct requests are blocked by CORS.
+const API_URL = 'https://luasforecasts.rpa.ie/xml/get.ashx';
+const chat=document.querySelector('#chat'), select=document.querySelector('#stop'), form=document.querySelector('#form'), input=document.querySelector('#question'), send=document.querySelector('#send'), status=document.querySelector('#status');
+let stops=[], busy=false;
+function message(text,user=false){const div=document.createElement('div');div.className='message'+(user?' user':'');div.textContent=text;chat.append(div);chat.scrollTop=chat.scrollHeight;}
+function normal(text){return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();}
+async function getXML(params){const response=await fetch(API_URL+'?'+new URLSearchParams({...params,encrypt:'false'}),{signal:AbortSignal.timeout(15000)});if(!response.ok)throw new Error(await response.text());const xml=new DOMParser().parseFromString(await response.text(),'application/xml');if(xml.querySelector('parsererror'))throw new Error('The Luas feed returned invalid XML.');return xml;}
+async function loadStops(){
+  try{const xml=await getXML({action:'stops'});stops=[...xml.querySelectorAll('stop')].map(s=>({name:s.getAttribute('name'),code:s.getAttribute('abbr'),line:s.parentElement.getAttribute('name')||'Luas'})).filter(s=>s.name&&s.code);if(!stops.length)throw new Error('The stop list is empty.');
+  select.replaceChildren();for(const stop of stops){const option=document.createElement('option');option.value=stop.code;option.textContent=stop.name+' · '+stop.line;select.append(option);}select.disabled=false;send.disabled=false;status.textContent='Ready · Live data fetched when you ask.';
+  }catch(e){select.replaceChildren(new Option('Stops unavailable — reload to retry',''));status.textContent=e.message;message('I couldn’t load the Luas stops. Please reload the page to try again.');}
+}
+message('Hello! Choose a stop below, or ask “Next tram at Ranelagh”. Add “inbound” or “outbound” to filter a direction. Say “refresh” to check the selected stop again.');
+form.addEventListener('submit',async event=>{
+  event.preventDefault();if(busy||!stops.length)return;const question=input.value.trim();if(!question)return;message(question,true);input.value='';
+  const query=normal(question);const matches=stops.filter(s=>(' '+query+' ').includes(' '+normal(s.name)+' ')||query===normal(s.code)).sort((a,b)=>b.name.length-a.name.length);
+  let stop=matches[0];
+  if(!stop&&!/\b(next|tram|luas|arrival|arrivals|refresh|inbound|outbound|when)\b/.test(query)){message('I can check live Luas arrivals. Choose a stop and ask “next tram”, or include its full name in your question.');return;}
+  stop ||= stops.find(s=>s.code===select.value);select.value=stop.code;busy=true;send.disabled=true;status.textContent='Fetching live arrivals…';
+  try{const xml=await getXML({action:'forecast',stop:stop.code});const info=xml.querySelector('stopInfo');if(!info)throw new Error('No forecast was returned for this stop.');
+    const direction=/\binbound\b/.test(query)?'inbound':/\boutbound\b/.test(query)?'outbound':null;
+    const lines=[stop.name+' — live arrivals'];const notice=info.querySelector('message')?.textContent?.trim();if(notice)lines.push(notice);
+    for(const d of info.querySelectorAll('direction')){const name=d.getAttribute('name')||'Direction';if(direction&&normal(name)!==direction)continue;lines.push('\n'+name);const trams=[...d.querySelectorAll('tram')].filter(t=>t.getAttribute('destination')&&t.getAttribute('dueMins'));if(!trams.length)lines.push('No trams currently predicted.');for(const t of trams){const due=t.getAttribute('dueMins');lines.push('• '+t.getAttribute('destination')+' — '+(due==='DUE'||due==='0'?'Due now':/^\d+$/.test(due)?due+' min':due));}}
+    const timestamp=info.getAttribute('created');if(timestamp)lines.push('\nFeed timestamp: '+timestamp+' (as supplied by Luas)');message(lines.join('\n'));status.textContent='Retrieved '+new Date().toLocaleTimeString('en-IE')+' · Ask again to refresh.';
+  }catch(e){message(e.message);status.textContent='Live request failed · You can try again.';}finally{busy=false;send.disabled=false;}
+});
+loadStops();
+</script>
+</html>
+
+
